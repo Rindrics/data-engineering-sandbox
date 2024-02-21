@@ -96,3 +96,9 @@ functions.cloudEvent('uploadCsvToBigQuery', async (cloudEvent) => {
     throw error;
   }
 });
+
+module.exports = {
+  convertFileEncoding,
+  deleteTempFile,
+  loadFileToBigQuery,
+};
