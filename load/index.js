@@ -27,6 +27,60 @@ const fs = require('fs');
 async function loadFileToBigQuery(datasetId, tableId, bucketName, filePath, jobConfig) {
     await bigquery.dataset(datasetId).table(tableId).load(storage.bucket(bucketName).file(filePath), jobConfig);
 }
+const datasetSchemas = {
+    'jader': {
+        fields: [
+            { name: 'ID', type: 'STRING' },
+            { name: 'TIMES_REPORTED', type: 'INT64' },
+            { name: 'SEX', type: 'STRING' },
+            { name: 'AGE', type: 'STRING' },
+            { name: 'WEIGHT', type: 'STRING' },
+            { name: 'HEIGHT', type: 'STRING' },
+            { name: 'FYEAR_QUARTER_REPORTED', type: 'STRING' },
+            { name: 'SURVEY_STATUS', type: 'STRING' },
+            { name: 'REPORT_CATEGORY', type: 'STRING' },
+            { name: 'REPORTER_LICENSE', type: 'STRING' },
+            { name: 'E2B', type: 'STRING' }
+        ],
+    },
+    'hist': {
+        fields: [
+            { name: 'ID', type: 'STRING' },
+            { name: 'TIMES_REPORTED', type: 'INT64' },
+            { name: 'PRIMARY_DESEASE_CODE', type: 'INT64' },
+            { name: 'PRIMARY_DESEASE', type: 'STRING' },
+        ],
+    },
+    'drug': {
+        fields: [
+            { name: 'ID', type: 'STRING' },
+            { name: 'TIMES_REPORTED', type: 'INT64' },
+            { name: 'DRUG_CODE', type: 'INT64' },
+            { name: 'DRUG_INVOLVEMENT', type: 'STRING' },
+            { name: 'DRUG_GENERAL_NAME', type: 'STRING' },
+            { name: 'DRUG_PRODUCT_NAME', type: 'STRING' },
+            { name: 'ADMINISTRATION_ROUTE', type: 'STRING' },
+            { name: 'DATE_ADMINISTRATION_START', type: 'STRING' },
+            { name: 'DATE_ADMINISTRATION_END', type: 'STRING' },
+            { name: 'AMOUNT_ADMINISTRATION', type: 'INT64' },
+            { name: 'UNIT_ADMINISTRATION', type: 'STRING' },
+            { name: 'TIMES_DIVIDED_ADMINISTRATION', type: 'INT64' },
+            { name: 'REASON_ADMINISTRATION', type: 'STRING' },
+            { name: 'DRUG_MANIPURATION', type: 'STRING' },
+            { name: 'RECURRENCED_BY_READMINISTRATION', type: 'STRING' },
+            { name: 'RISK_CLASS', type: 'STRING' },
+        ],
+    },
+    'reac': {
+        fields: [
+            { name: 'ID', type: 'STRING' },
+            { name: 'TIMES_REPORTED', type: 'INT64' },
+            { name: 'ADVERSE_EVENT_CODE', type: 'INT64' },
+            { name: 'OUTCOME', type: 'STRING' },
+            { name: 'DATE_ADVERSE_EVENT_RECURRENCED', type: 'STRING' },
+        ],
+    },
+};
 
 // Entrypoint
 const functions = require('@google-cloud/functions-framework');
@@ -50,31 +104,13 @@ functions.cloudEvent('uploadCsvToBigQuery', async (cloudEvent) => {
         console.log('not csv');
         return;
     }
-    if (!fileName.startsWith('demo')) {
-        console.log("not 'demo' file");
-        return;
-    }
 
     const datasetId = 'jader';
     const tableId = fileName.replace(/[0-9]{6}\.csv/, '');
 
     const jobConfig = {
         sourceFormat: 'CSV',
-        schema: {
-            fields: [
-                { name: 'ID', type: 'STRING' },
-                { name: 'TIMES_REPORTED', type: 'STRING' },
-                { name: 'SEX', type: 'STRING' },
-                { name: 'AGE', type: 'STRING' },
-                { name: 'WEIGHT', type: 'STRING' },
-                { name: 'HEIGHT', type: 'STRING' },
-                { name: 'FYEAR_QUARTER_REPORTED', type: 'STRING' },
-                { name: 'SURVEY_STATUS', type: 'STRING' },
-                { name: 'REPORT_CATEGORY', type: 'STRING' },
-                { name: 'REPORTER_LICENSE', type: 'STRING' },
-                { name: 'E2B', type: 'STRING' }
-            ],
-        },
+        schema: datasetSchemas[fileName.replace(/[0-9]{6}\.csv/, '')],
         skipLeadingRows: 1,
         autodetect: false,
     };
