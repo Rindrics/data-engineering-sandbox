@@ -114,6 +114,7 @@ functions.cloudEvent('uploadCsvToBigQuery', async (cloudEvent) => {
         schema: datasetSchemas[fileName.replace(/[0-9]{6}\.csv/, '')],
         skipLeadingRows: 1,
         autodetect: false,
+        quote: '"',
     };
 
     try {
